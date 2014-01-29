@@ -1,4 +1,4 @@
-patch = function(tgtParent, srcParent, tgtBefore, tgtAfter, preservations,
+patchOld = function(tgtParent, srcParent, tgtBefore, tgtAfter, preservations,
                  results) {
 
   var copyFunc = function(t, s) {
@@ -82,7 +82,28 @@ patch = function(tgtParent, srcParent, tgtBefore, tgtAfter, preservations,
   return results;
 };
 
+patch = function(tgtParent, srcParent, tgtBefore, tgtAfter, preservations, results) {
 
+  var sel = rangy.getSelection();
+
+  if (sel.rangeCount > 0) {
+    var range = sel.getRangeAt(0);
+
+    // prevent go recursive patch when this contenteditable is the focus dom
+
+    if ($(range.commonAncestorContainer).closest('[contenteditable]').get(0) == tgtParent
+
+      && tgtParent.innerHTML.trim() !== '') {
+
+      return results;
+
+    }
+
+  }
+
+  return patchOld.apply(this, arguments);
+
+}
 // A Patcher manages the controlled replacement of a region of the DOM.
 // The target region is changed in place to match the source region.
 //
